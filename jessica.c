@@ -25,9 +25,10 @@ int csem_init (csem_t *sem, int count){
 	malloc(sizeof(csem_t)); // aloca memoria para um semaforo
 	
 	sem.count = count; //count agora tem o numero de recursos desse mesmo tipo, que sao controlados pelo mesmo semaforo
-	sem.fila = //inicializa a fila do semaforo como vazia
-	return 0;
-	//return -4 // erro
+	if (CreateFila2(sem.fila) == 0) //inicializa a fila do semaforo como vazia
+		return 0;
+	else
+		return -4; // erro
 	
 }
 
@@ -38,20 +39,24 @@ int cwait (csem_t *sem){
 		//existe recurso livre, atribui o recurso a thread
 	else
 		// senao coloca a thread na fila de espera do semaforo
-		//e thread.status = 3 (bloqueado)
+		if (AppendFila2(sem.fila, *thread.context) != 0)//coloca a thread no final da fila
+			return -5; // erro
+		thread.status = 3 //bloqueia a thread
 		
 	return 0;
-	//return -5; erro
 }
 
 int csignal (csem_t *sem){
 	
 	sem.count ++; //sempre incrementa o count
 	if (sem.count > 0)
-		//if (sem.fila =! vazio)
-			// procura na fila qual a proxima thread a usar o recurso (politica FIFO)
-			// chama o dispatcher para mandar a thread para a fila de aptos e trocar o status dela
-			// tira o ponteiro da thread da fila do semaforo
+		if (sem.fila =! NULL)// se existem threads na fila
+		// procura na fila qual a proxima thread a usar o recurso (politica FIFO)
+			if (FirstFila2(sem.fila) != 0)
+				return -6; //erro
+			//GetIteratorFila2(sem.fila)// chama o dispatcher para mandar a thread para a fila de aptos e trocar o status dela
+			if (DeleteAtIteratorFila2(sem.fila) != 0)// tira o ponteiro da thread da fila do semaforo
+				return -6; //erro
 		// else //nada, nao ha mais threads que estejam esperando por esse recurso
 	else 
 		return -6; //erro, alguem esta usando recurso indisponivel
